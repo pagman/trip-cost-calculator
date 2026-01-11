@@ -15,11 +15,12 @@ Planning a road trip in Greece? This calculator helps you estimate the total cos
 
 - **🗺️ Interactive Route Mapping** - Visualize your journey on an interactive Mapbox map
 - **⛽ Accurate Fuel Cost Calculation** - Based on vehicle type, consumption rate, and current fuel prices
-- **🛣️ Real Greek Toll Prices** - Database of 21+ toll stations with official 2025 pricing
-- **🚗 Multiple Vehicle Types** - Support for motorcycles, cars, SUVs, and trucks
+- **🛣️ Smart Toll Estimation** - Matches against 7 major routes or estimates using €0.07/km formula
+- **🚗 Multiple Vehicle Types** - Support for motorcycles, cars, SUVs, and trucks with different toll multipliers
 - **👥 Cost Splitting** - Divide expenses among passengers
 - **🔀 Avoid Tolls Option** - Find toll-free alternative routes
 - **📊 Detailed Breakdown** - See fuel costs, toll costs, distance, and duration
+- **🎯 Works for Any Route** - Known routes get exact prices, others are estimated by distance
 - **📱 Responsive Design** - Works seamlessly on desktop and mobile
 
 ## 🎯 Use Cases
@@ -95,22 +96,50 @@ _Coming soon - Add screenshots of your application_
 **Athens to Thessaloniki:**
 - Distance: ~500 km
 - Duration: ~5 hours
-- Toll Cost (Car): €32.20
+- Toll Cost (Car): €22.50 (matched route)
 - Fuel Cost (7L/100km @ €1.75): ~€61.25
-- **Total: €93.45**
+- **Total: €83.75**
 
-## 🗺️ Supported Routes
+**Athens to Patras:**
+- Distance: ~215 km
+- Duration: ~2.5 hours
+- Toll Cost (Car): €12.00 (matched route)
+- Fuel Cost (7L/100km @ €1.75): ~€26.25
+- **Total: €38.25**
 
-The calculator has exact toll pricing for these major routes:
+## 🛣️ How Toll Calculation Works
 
-| Route | Distance | Toll Stations | Toll (Car) |
-|-------|----------|---------------|------------|
-| Athens → Thessaloniki | 500 km | 3 | €32.20 |
-| Athens → Patras | 215 km | 5 | €13.30 |
-| Corinth → Kalamata | 205 km | - | €11.30 |
-| Antirrio → Ioannina | 185 km | 4 | €14.35 |
+The toll calculation system uses a **two-tier approach** to estimate toll costs:
 
-For other routes, the calculator estimates tolls based on distance and similar routes.
+### 1. Known Route Matching
+The system first tries to match your route against predefined major highways:
+
+| Route | Base Toll (Car) | Route |
+|-------|-----------------|-------|
+| Athens ↔ Thessaloniki | €22.50 | Athens ↔ Patras | €12.00 |
+| Athens ↔ Corinth | €2.80 | Athens ↔ Lamia | €9.00 |
+| Thessaloniki ↔ Kavala | €8.00 | Corinth ↔ Patras | €9.20 |
+| Lamia ↔ Igoumenitsa | €12.00 | | |
+
+Routes are matched **bidirectionally** - "Athens to Thessaloniki" = "Thessaloniki to Athens"
+
+### 2. Vehicle Type Multipliers
+Base toll prices (for cars) are adjusted based on vehicle type:
+
+- 🏍️ **Motorcycle**: 0.5× (50% of car price)
+- 🚗 **Car/SUV**: 1.0× (baseline)
+- 🚚 **Small Truck**: 1.5× (150% of car price)
+- 🚛 **Large Truck**: 2.0× (200% of car price)
+
+### 3. Distance-Based Estimation
+If no specific route is matched, tolls are estimated as:
+```
+€0.07 per km × distance × vehicle multiplier
+```
+Based on the average toll rate in Greece (€0.06-0.08/km for cars)
+
+### 4. Future Enhancement
+The codebase includes comprehensive toll station data with 21+ individual stations (Olympia Odos, Nea Odos, Ionia Odos, Rio-Antirrio Bridge) with exact prices - prepared for future station-by-station calculation.
 
 ## 🏗️ Project Structure
 
@@ -146,13 +175,23 @@ The calculator supports these vehicle categories with different toll rates:
 - **Small Truck** 🚚 - Commercial vehicle rates
 - **Large Truck** 🚛 - Highest toll rates
 
-### Toll Database
+### Current System
 
-Toll prices are based on official 2025 rates from:
-- **Olympia Odos** (Athens-Patras)
-- **Nea Odos A.TH.E** (Athens-Thessaloniki)
-- **Ionia Odos** (Antirrio-Ioannina)
-- **Rio-Antirrio Bridge**
+The app currently uses **predefined route totals** for major highways:
+- 7 major routes with known toll costs
+- Vehicle type multipliers (0.5× to 2.0×)
+- Distance-based estimation (€0.07/km) for unmatched routes
+
+### Available Data (For Future Enhancement)
+
+The codebase includes detailed toll station data ready for implementation:
+- **21+ individual toll stations** across Greece
+- **Olympia Odos** (Athens-Patras corridor): 14 stations
+- **Nea Odos A.TH.E** (Athens-Thessaloniki corridor): 8 stations  
+- **Ionia Odos** (Western Greece): 9 stations
+- **Special tolls**: Rio-Antirrio Bridge (€15.40 for cars)
+
+All detailed prices are official 2025 rates from Greek highway operators, prepared for future station-by-station calculation.
 
 ## 🤝 Contributing
 
