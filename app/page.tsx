@@ -13,7 +13,7 @@ interface TripResult {
   totalCost: number;
   costPerPerson: number;
   tollInfo: string;
-  routeGeometry: any;
+  routeGeometry: GeoJSON.Feature | null;
 }
 
 export default function Home() {
@@ -41,20 +41,20 @@ export default function Home() {
     // Reset previous results
     setError('');
     setResult(null);
-    
+
     // Validate inputs
     if (!origin || !destination) {
-      setError('Please enter both origin and destination');
+      setError('Παρακαλώ εισάγετε αφετηρία και προορισμό');
       return;
     }
-    
+
     if (!consumption || !fuelPrice) {
-      setError('Please enter fuel consumption and price');
+      setError('Παρακαλώ εισάγετε κατανάλωση και τιμή καυσίμου');
       return;
     }
-    
+
     if (parseFloat(consumption) <= 0 || parseFloat(fuelPrice) <= 0) {
-      setError('Fuel consumption and price must be greater than 0');
+      setError('Η κατανάλωση και η τιμή καυσίμου πρέπει να είναι μεγαλύτερες από 0');
       return;
     }
     
@@ -69,7 +69,7 @@ export default function Home() {
       });
 
       if (!originResponse.ok) {
-        throw new Error('Could not find origin location');
+        throw new Error('Δεν βρέθηκε η τοποθεσία αφετηρίας');
       }
 
       const originData = await originResponse.json();
@@ -82,7 +82,7 @@ export default function Home() {
       });
 
       if (!destResponse.ok) {
-        throw new Error('Could not find destination location');
+        throw new Error('Δεν βρέθηκε η τοποθεσία προορισμού');
       }
 
       const destData = await destResponse.json();
@@ -99,7 +99,7 @@ export default function Home() {
       });
 
       if (!directionsResponse.ok) {
-        throw new Error('Could not calculate route');
+        throw new Error('Δεν ήταν δυνατός ο υπολογισμός της διαδρομής');
       }
 
       const directionsData = await directionsResponse.json();
@@ -111,7 +111,7 @@ export default function Home() {
       
       // Step 5: Calculate toll cost (only if not avoiding tolls)
       let tollCost = 0;
-      let tollInfo = 'No tolls';
+      let tollInfo = 'Χωρίς διόδια';
       
       if (!avoidTolls) {
         const tollResult = calculateTolls(
@@ -122,7 +122,7 @@ export default function Home() {
         );
         
         tollCost = tollResult.estimatedToll;
-        tollInfo = tollResult.matchedRoute || 'Estimated';
+        tollInfo = tollResult.matchedRoute || 'Εκτιμώμενο';
       }
       
       // Step 6: Calculate totals
@@ -143,7 +143,7 @@ export default function Home() {
       });
       
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to calculate trip. Please try again.';
+      const errorMessage = err instanceof Error ? err.message : 'Αποτυχία υπολογισμού. Παρακαλώ δοκιμάστε ξανά.';
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -154,10 +154,10 @@ export default function Home() {
     <main className="min-h-screen p-8 bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-4xl font-bold mb-2 text-gray-800">
-          Trip Cost Calculator
+          Υπολογισμός Κόστους Ταξιδιού
         </h1>
         <p className="text-gray-700 mb-8">
-          Calculate fuel and toll costs for your journey in Greece
+          Υπολογίστε το κόστος καυσίμων και διοδίων για το ταξίδι σας στην Ελλάδα
         </p>
 
         {/* Two Column Layout */}
@@ -171,22 +171,22 @@ export default function Home() {
               {/* Vehicle Type Selection */}
               <div className="mb-6">
                 <h2 className="text-xl font-semibold mb-4 text-gray-800">
-                  🚗 Vehicle Information
+                  🚗 Πληροφορίες Οχήματος
                 </h2>
-                
+
                 <label className="block text-sm font-medium mb-2 text-gray-800">
-                  Vehicle Type
+                  Τύπος Οχήματος
                 </label>
                 <select
                   value={vehicleType}
                   onChange={(e) => setVehicleType(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white text-gray-900"
                 >
-                  <option value="motorcycle">🏍️ Motorcycle</option>
-                  <option value="car">🚗 Car (Sedan)</option>
+                  <option value="motorcycle">🏍️ Μοτοσικλέτα</option>
+                  <option value="car">🚗 Αυτοκίνητο</option>
                   <option value="suv">🚙 SUV / Van</option>
-                  <option value="small-truck">🚚 Small Truck</option>
-                  <option value="large-truck">🚛 Large Truck</option>
+                  <option value="small-truck">🚚 Μικρό Φορτηγό</option>
+                  <option value="large-truck">🚛 Μεγάλο Φορτηγό</option>
                 </select>
               </div>
 
@@ -194,35 +194,35 @@ export default function Home() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
                   <label className="block text-sm font-medium mb-2 text-gray-800">
-                    Fuel Consumption (L/100km)
+                    Κατανάλωση Καυσίμου (L/100χλμ)
                   </label>
                   <input
                     type="number"
                     step="0.1"
                     value={consumption}
                     onChange={(e) => setConsumption(e.target.value)}
-                    placeholder="e.g., 7.5"
+                    placeholder="π.χ., 7.5"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900"
                   />
                   <p className="text-xs text-gray-600 mt-1">
-                    How many liters per 100 kilometers
+                    Πόσα λίτρα ανά 100 χιλιόμετρα
                   </p>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium mb-2 text-gray-800">
-                    Fuel Price (€ per liter)
+                    Τιμή Καυσίμου (€ ανά λίτρο)
                   </label>
                   <input
                     type="number"
                     step="0.01"
                     value={fuelPrice}
                     onChange={(e) => setFuelPrice(e.target.value)}
-                    placeholder="e.g., 1.75"
+                    placeholder="π.χ., 1.75"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900"
                   />
                   <p className="text-xs text-gray-600 mt-1">
-                    Current fuel price
+                    Τρέχουσα τιμή καυσίμου
                   </p>
                 </div>
               </div>
@@ -230,22 +230,22 @@ export default function Home() {
               {/* Route Details */}
               <div className="mb-6">
                 <h2 className="text-xl font-semibold mb-4 text-gray-800">
-                  📍 Route Details
+                  📍 Λεπτομέρειες Διαδρομής
                 </h2>
-                
+
                 <div className="space-y-4">
                   <LocationAutocomplete
                     value={origin}
                     onChange={setOrigin}
-                    placeholder="e.g., Athens, Thessaloniki, Patras..."
-                    label="Starting Point"
+                    placeholder="π.χ., Αθήνα, Θεσσαλονίκη, Πάτρα..."
+                    label="Σημείο Αφετηρίας"
                   />
 
                   <LocationAutocomplete
                     value={destination}
                     onChange={setDestination}
-                    placeholder="e.g., Thessaloniki, Patras, Heraklion..."
-                    label="Destination"
+                    placeholder="π.χ., Θεσσαλονίκη, Πάτρα, Ηράκλειο..."
+                    label="Προορισμός"
                   />
                 </div>
               </div>
@@ -253,12 +253,12 @@ export default function Home() {
               {/* Cost Splitting Section */}
               <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
                 <h2 className="text-xl font-semibold mb-4 text-gray-800">
-                  👥 Split the Cost
+                  👥 Μοιραστείτε το Κόστος
                 </h2>
-                
+
                 <div>
                   <label className="block text-sm font-medium mb-2 text-gray-800">
-                    Number of People Sharing
+                    Αριθμός Ατόμων
                   </label>
                   <input
                     type="number"
@@ -269,7 +269,7 @@ export default function Home() {
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none text-gray-900"
                   />
                   <p className="text-xs text-gray-700 mt-1">
-                    Including yourself (driver + passengers)
+                    Συμπεριλαμβανομένου εσάς (οδηγός + επιβάτες)
                   </p>
                 </div>
               </div>
@@ -285,7 +285,7 @@ export default function Home() {
                     className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
                   />
                   <label htmlFor="avoidTolls" className="ml-3 text-sm font-medium text-gray-800">
-                    Avoid toll roads (may take longer)
+                    Αποφυγή διοδίων (μπορεί να διαρκέσει περισσότερο)
                   </label>
                 </div>
               </div>
@@ -303,7 +303,7 @@ export default function Home() {
                 disabled={loading}
                 className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg transition-colors shadow-md hover:shadow-lg"
               >
-                {loading ? 'Calculating...' : 'Calculate Trip Cost'}
+                {loading ? 'Υπολογισμός...' : 'Υπολογισμός Κόστους Ταξιδιού'}
               </button>
             </div>
 
@@ -311,42 +311,42 @@ export default function Home() {
             {result && (
               <div className="bg-white rounded-xl shadow-lg p-6">
                 <h2 className="text-2xl font-semibold mb-4 text-gray-800">
-                  Trip Results
+                  Αποτελέσματα Ταξιδιού
                 </h2>
-                
+
                 <div className="space-y-4">
                   {/* Distance and Duration */}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                      <p className="text-xs text-gray-600 mb-1">Distance</p>
-                      <p className="text-lg font-semibold text-gray-800">{result.distance.toFixed(1)} km</p>
+                      <p className="text-xs text-gray-600 mb-1">Απόσταση</p>
+                      <p className="text-lg font-semibold text-gray-800">{result.distance.toFixed(1)} χλμ</p>
                     </div>
                     <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                      <p className="text-xs text-gray-600 mb-1">Duration</p>
-                      <p className="text-lg font-semibold text-gray-800">{result.duration} min</p>
+                      <p className="text-xs text-gray-600 mb-1">Διάρκεια</p>
+                      <p className="text-lg font-semibold text-gray-800">{result.duration} λεπτά</p>
                     </div>
                   </div>
 
                   {/* Total Cost */}
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <p className="text-sm text-gray-600 mb-1">Total Trip Cost</p>
+                    <p className="text-sm text-gray-600 mb-1">Συνολικό Κόστος Ταξιδιού</p>
                     <p className="text-3xl font-bold text-blue-700">
                       € {result.totalCost.toFixed(2)}
                     </p>
                     <p className="text-xs text-gray-600 mt-1">
-                      (Fuel + Tolls)
+                      (Καύσιμα + Διόδια)
                     </p>
                   </div>
 
                   {/* Cost Breakdown */}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                      <p className="text-xs text-gray-600 mb-1">⛽ Fuel Cost</p>
+                      <p className="text-xs text-gray-600 mb-1">⛽ Κόστος Καυσίμων</p>
                       <p className="text-xl font-semibold text-gray-800">€ {result.fuelCost.toFixed(2)}</p>
                     </div>
-                    
+
                     <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                      <p className="text-xs text-gray-600 mb-1">🛣️ Toll Cost</p>
+                      <p className="text-xs text-gray-600 mb-1">🛣️ Κόστος Διοδίων</p>
                       <p className="text-xl font-semibold text-gray-800">€ {result.tollCost.toFixed(2)}</p>
                       {result.tollInfo && (
                         <p className="text-xs text-gray-600 mt-1">{result.tollInfo}</p>
@@ -358,13 +358,13 @@ export default function Home() {
                   {parseInt(numPeople) > 1 && (
                     <div className="bg-green-50 border-2 border-green-400 rounded-lg p-4">
                       <p className="text-sm text-gray-600 mb-1">
-                        Cost per Person ({numPeople} people)
+                        Κόστος ανά Άτομο ({numPeople} άτομα)
                       </p>
                       <p className="text-3xl font-bold text-green-700">
                         € {result.costPerPerson.toFixed(2)}
                       </p>
                       <p className="text-xs text-gray-600 mt-1">
-                        Each person pays this amount
+                        Κάθε άτομο πληρώνει αυτό το ποσό
                       </p>
                     </div>
                   )}
