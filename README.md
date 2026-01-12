@@ -64,12 +64,12 @@ _Coming soon - Add screenshots of your application_
    ```
 
 3. **Set up environment variables**
-   
+
    Create a `.env.local` file in the root directory:
    ```env
    NEXT_PUBLIC_MAPBOX_TOKEN=your_mapbox_token_here
    ```
-   
+
    Get your free Mapbox token at [mapbox.com/account/access-tokens](https://account.mapbox.com/access-tokens/)
 
 4. **Run the development server**
@@ -78,8 +78,56 @@ _Coming soon - Add screenshots of your application_
    ```
 
 5. **Open your browser**
-   
+
    Navigate to [http://localhost:3000](http://localhost:3000)
+
+## 🚢 Deployment
+
+### Deploy to Vercel (Recommended)
+
+The easiest way to deploy this Next.js app is with [Vercel](https://vercel.com):
+
+1. **Push your code to GitHub**
+   ```bash
+   git add .
+   git commit -m "Ready for deployment"
+   git push origin main
+   ```
+
+2. **Import to Vercel**
+   - Go to [vercel.com](https://vercel.com)
+   - Click "New Project"
+   - Import your GitHub repository
+   - Vercel will auto-detect Next.js settings
+
+3. **Add Environment Variables**
+   - In Vercel project settings, go to "Environment Variables"
+   - Add `NEXT_PUBLIC_MAPBOX_TOKEN` with your Mapbox token
+   - Deploy!
+
+4. **Done!** Your app will be live at `your-project.vercel.app`
+
+### Deploy to Other Platforms
+
+The app can also be deployed to:
+
+- **Netlify**: Use the Next.js runtime
+- **AWS Amplify**: Connect your Git repository
+- **Railway**: One-click deploy
+- **DigitalOcean App Platform**: Container-based deployment
+
+For all platforms, remember to:
+1. Set `NEXT_PUBLIC_MAPBOX_TOKEN` environment variable
+2. Ensure Node.js 18+ is used
+3. Build command: `npm run build`
+4. Start command: `npm start`
+
+### Environment Variables for Production
+
+Required environment variables:
+- `NEXT_PUBLIC_MAPBOX_TOKEN` - Your Mapbox API token (get it from [mapbox.com](https://account.mapbox.com/access-tokens/))
+
+**Important:** Never commit your `.env.local` file. Use your platform's environment variable settings instead.
 
 ## 📖 Usage
 

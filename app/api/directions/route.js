@@ -1,12 +1,8 @@
 import { NextResponse } from 'next/server';
 
 export async function POST(request) {
-  console.log('[DIRECTIONS] POST request received');
-
   try {
     const body = await request.json();
-    console.log('[DIRECTIONS] Request body:', body);
-
     const { origin, destination, avoidTolls } = body;
 
     // Validate input
@@ -36,15 +32,11 @@ export async function POST(request) {
 
     const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${coordinates}?geometries=geojson&overview=full&steps=false&access_token=${mapboxToken}${excludeParam}`;
 
-    console.log('[DIRECTIONS] Calling Mapbox Directions API...');
-
     const response = await fetch(url);
     const data = await response.json();
 
-    console.log('[DIRECTIONS] Mapbox response status:', response.status);
-
     if (!response.ok || !data.routes || data.routes.length === 0) {
-      console.error('[DIRECTIONS] No route found:', data);
+      console.error('[DIRECTIONS] No route found');
       return NextResponse.json(
         { error: 'No route found between these locations' },
         { status: 404 }
@@ -68,8 +60,6 @@ export async function POST(request) {
         geometry: route.geometry
       }
     };
-
-    console.log('[DIRECTIONS] Success! Distance:', result.distance.kilometers, 'km');
 
     return NextResponse.json(result);
 

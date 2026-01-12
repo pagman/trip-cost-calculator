@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import Map, { Marker, Source, Layer } from 'react-map-gl';
+import Map, { Marker, Layer, Source } from 'react-map-gl/mapbox';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 interface MapViewProps {
@@ -62,13 +62,13 @@ export default function MapView({ origin, destination, routeGeometry }: MapViewP
           🗺️ Route Map
         </h2>
         <p className="text-blue-100 text-sm">
-          {origin && destination 
+          {origin && destination
             ? `${origin} → ${destination}`
             : 'Enter locations and calculate to see route'
           }
         </p>
       </div>
-      
+
       <div className="h-[600px]">
         <Map
           initialViewState={viewport}
@@ -121,11 +121,11 @@ export default function MapView({ origin, destination, routeGeometry }: MapViewP
           })()}
         </Map>
       </div>
-      
+
       {/* Map Instructions */}
       <div className="p-4 bg-gray-50 border-t">
         <p className="text-sm text-gray-600">
-          💡 <strong>Tip:</strong> {routeGeometry 
+          💡 <strong>Tip:</strong> {routeGeometry
             ? 'Drag to pan, scroll to zoom. Green (A) is start, Red (B) is destination.'
             : 'Calculate a trip to see the route displayed on the map.'
           }

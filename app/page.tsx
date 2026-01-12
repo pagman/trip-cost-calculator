@@ -62,37 +62,32 @@ export default function Home() {
     
     try {
       // Step 1: Geocode origin
-      console.log('Geocoding origin:', origin);
       const originResponse = await fetch('/api/geocode', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ address: origin })
       });
-      
+
       if (!originResponse.ok) {
         throw new Error('Could not find origin location');
       }
-      
+
       const originData = await originResponse.json();
-      console.log('Origin coordinates:', originData);
-      
+
       // Step 2: Geocode destination
-      console.log('Geocoding destination:', destination);
       const destResponse = await fetch('/api/geocode', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ address: destination })
       });
-      
+
       if (!destResponse.ok) {
         throw new Error('Could not find destination location');
       }
-      
+
       const destData = await destResponse.json();
-      console.log('Destination coordinates:', destData);
-      
+
       // Step 3: Get directions
-      console.log('Getting directions...');
       const directionsResponse = await fetch('/api/directions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -102,13 +97,12 @@ export default function Home() {
           avoidTolls: avoidTolls
         })
       });
-      
+
       if (!directionsResponse.ok) {
         throw new Error('Could not calculate route');
       }
-      
+
       const directionsData = await directionsResponse.json();
-      console.log('Directions:', directionsData);
       
       // Step 4: Calculate fuel cost
       const distanceKm = directionsData.distance.kilometers;
@@ -129,8 +123,6 @@ export default function Home() {
         
         tollCost = tollResult.estimatedToll;
         tollInfo = tollResult.matchedRoute || 'Estimated';
-        
-        console.log('Toll calculation:', tollResult);
       }
       
       // Step 6: Calculate totals
@@ -150,9 +142,9 @@ export default function Home() {
         routeGeometry: directionsData.geometry
       });
       
-    } catch (err: any) {
-      console.error('Calculation error:', err);
-      setError(err.message || 'Failed to calculate trip. Please try again.');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to calculate trip. Please try again.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -164,7 +156,7 @@ export default function Home() {
         <h1 className="text-4xl font-bold mb-2 text-gray-800">
           Trip Cost Calculator
         </h1>
-        <p className="text-gray-600 mb-8">
+        <p className="text-gray-700 mb-8">
           Calculate fuel and toll costs for your journey in Greece
         </p>
 
@@ -182,13 +174,13 @@ export default function Home() {
                   🚗 Vehicle Information
                 </h2>
                 
-                <label className="block text-sm font-medium mb-2 text-gray-700">
+                <label className="block text-sm font-medium mb-2 text-gray-800">
                   Vehicle Type
                 </label>
                 <select
                   value={vehicleType}
                   onChange={(e) => setVehicleType(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white text-gray-900"
                 >
                   <option value="motorcycle">🏍️ Motorcycle</option>
                   <option value="car">🚗 Car (Sedan)</option>
@@ -201,7 +193,7 @@ export default function Home() {
               {/* Fuel Settings */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-700">
+                  <label className="block text-sm font-medium mb-2 text-gray-800">
                     Fuel Consumption (L/100km)
                   </label>
                   <input
@@ -210,15 +202,15 @@ export default function Home() {
                     value={consumption}
                     onChange={(e) => setConsumption(e.target.value)}
                     placeholder="e.g., 7.5"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900"
                   />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-600 mt-1">
                     How many liters per 100 kilometers
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-700">
+                  <label className="block text-sm font-medium mb-2 text-gray-800">
                     Fuel Price (€ per liter)
                   </label>
                   <input
@@ -227,9 +219,9 @@ export default function Home() {
                     value={fuelPrice}
                     onChange={(e) => setFuelPrice(e.target.value)}
                     placeholder="e.g., 1.75"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900"
                   />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-600 mt-1">
                     Current fuel price
                   </p>
                 </div>
@@ -265,7 +257,7 @@ export default function Home() {
                 </h2>
                 
                 <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-700">
+                  <label className="block text-sm font-medium mb-2 text-gray-800">
                     Number of People Sharing
                   </label>
                   <input
@@ -274,9 +266,9 @@ export default function Home() {
                     max="20"
                     value={numPeople}
                     onChange={(e) => setNumPeople(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none text-gray-900"
                   />
-                  <p className="text-xs text-gray-600 mt-1">
+                  <p className="text-xs text-gray-700 mt-1">
                     Including yourself (driver + passengers)
                   </p>
                 </div>
@@ -292,7 +284,7 @@ export default function Home() {
                     onChange={(e) => setAvoidTolls(e.target.checked)}
                     className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
                   />
-                  <label htmlFor="avoidTolls" className="ml-3 text-sm font-medium text-gray-700">
+                  <label htmlFor="avoidTolls" className="ml-3 text-sm font-medium text-gray-800">
                     Avoid toll roads (may take longer)
                   </label>
                 </div>
@@ -341,7 +333,7 @@ export default function Home() {
                     <p className="text-3xl font-bold text-blue-700">
                       € {result.totalCost.toFixed(2)}
                     </p>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-gray-600 mt-1">
                       (Fuel + Tolls)
                     </p>
                   </div>
@@ -357,7 +349,7 @@ export default function Home() {
                       <p className="text-xs text-gray-600 mb-1">🛣️ Toll Cost</p>
                       <p className="text-xl font-semibold text-gray-800">€ {result.tollCost.toFixed(2)}</p>
                       {result.tollInfo && (
-                        <p className="text-xs text-gray-500 mt-1">{result.tollInfo}</p>
+                        <p className="text-xs text-gray-600 mt-1">{result.tollInfo}</p>
                       )}
                     </div>
                   </div>
@@ -371,7 +363,7 @@ export default function Home() {
                       <p className="text-3xl font-bold text-green-700">
                         € {result.costPerPerson.toFixed(2)}
                       </p>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-gray-600 mt-1">
                         Each person pays this amount
                       </p>
                     </div>

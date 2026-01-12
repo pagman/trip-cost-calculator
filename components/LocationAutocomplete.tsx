@@ -43,8 +43,9 @@ export default function LocationAutocomplete({
           const data = await response.json();
           setSuggestions(data.suggestions || []);
         }
-      } catch (error) {
-        console.error('Failed to fetch suggestions:', error);
+      } catch {
+        // Silently handle error - suggestions will remain empty
+        setSuggestions([]);
       } finally {
         setLoading(false);
       }
@@ -74,7 +75,7 @@ export default function LocationAutocomplete({
 
   return (
     <div ref={wrapperRef} className="relative">
-      <label className="block text-sm font-medium mb-2 text-gray-700">
+      <label className="block text-sm font-medium mb-2 text-gray-800">
         {label}
       </label>
       <input
@@ -86,7 +87,7 @@ export default function LocationAutocomplete({
         }}
         onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
         placeholder={placeholder}
-        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900"
         autoComplete="off"
       />
 
@@ -130,7 +131,7 @@ export default function LocationAutocomplete({
                     d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                   />
                 </svg>
-                <span className="text-sm text-gray-700">{suggestion.place_name}</span>
+                <span className="text-sm text-gray-800">{suggestion.place_name}</span>
               </div>
             </button>
           ))}
@@ -140,7 +141,7 @@ export default function LocationAutocomplete({
       {/* No results message */}
       {showSuggestions && !loading && value.length >= 2 && suggestions.length === 0 && (
         <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg p-4">
-          <p className="text-sm text-gray-500 text-center">
+          <p className="text-sm text-gray-600 text-center">
             No locations found in Greece
           </p>
         </div>
